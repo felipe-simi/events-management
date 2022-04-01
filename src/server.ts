@@ -1,23 +1,23 @@
-import express from "express"
-import {Server} from "http";
-import {getDBConnection} from "./database";
+import express from 'express';
+import { Server } from 'http';
 
-const sleep = (ms: number): Promise<void> => new Promise((res) => setTimeout(res, ms))
+const sleep = (ms: number): Promise<void> =>
+  new Promise((res) => setTimeout(res, ms));
 
-export const start = async (): Promise<Server> => new Promise(async (resolve, reject) => {
+export const start = async (): Promise<Server> =>
+  new Promise(async (resolve, reject) => {
     try {
-        const port = 4040
-        const app = express()
-        getDBConnection()
-        app.get('/', (req, res) => {
-            res.send('Hello World!')
-        })
+      const port = 4040;
+      const app = express();
+      app.get('/', (req, res) => {
+        res.send('Hello World!');
+      });
 
-        const server = app.listen(port, () => {
-            console.log(`Example app listening at http://localhost:${port}`)
-            resolve(server)
-        })
+      const server = app.listen(port, () => {
+        console.log(`Example app listening at http://localhost:${port}`);
+        resolve(server);
+      });
     } catch (err) {
-        reject(err)
+      reject(err);
     }
-})
+  });
