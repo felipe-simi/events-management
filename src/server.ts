@@ -1,5 +1,7 @@
 import express from 'express';
 import { Server } from 'http';
+import { ServerConfig } from './infrastructure/config';
+import { Postgres } from './infrastructure/postgres';
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((res) => setTimeout(res, ms));
@@ -7,7 +9,13 @@ const sleep = (ms: number): Promise<void> =>
 export const start = async (): Promise<Server> =>
   new Promise(async (resolve, reject) => {
     try {
-      const port = 4040;
+      const port = ServerConfig.port;
+      if (!port) {
+        throw new Error('No port defined');
+      }
+      const databaseConnection = Postgres.getConnection();
+      await databaseConnection.authenticate();
+      console.debug('Database connected');
       const app = express();
       app.get('/', (req, res) => {
         res.send('Hello World!');
