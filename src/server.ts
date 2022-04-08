@@ -1,31 +1,43 @@
 import express from 'express';
-import { Server } from 'http';
-import { ServerConfig } from './infrastructure/config';
-import { Postgres } from './infrastructure/postgres';
+import { exitOnError } from './common/exitOnError';
+import { BaseController } from './controller/BaseController';
+import { ServerConfig } from './infrastructure/Config';
 
-const sleep = (ms: number): Promise<void> =>
-  new Promise((res) => setTimeout(res, ms));
+export class Server {
+  private app: express.Application;
+  private static server: Server;
 
-export const start = async (): Promise<Server> =>
-  new Promise(async (resolve, reject) => {
-    try {
-      const port = ServerConfig.port;
-      if (!port) {
-        throw new Error('No port defined');
-      }
-      const databaseConnection = Postgres.getConnection();
-      await databaseConnection.authenticate();
-      console.debug('Database connected');
-      const app = express();
-      app.get('/', (req, res) => {
-        res.send('Hello World!');
-      });
-
-      const server = app.listen(port, () => {
-        console.log(`Example app listening at http://localhost:${port}`);
-        resolve(server);
-      });
-    } catch (err) {
-      reject(err);
+  static getInstance(): Server {
+    if (!this.server) {
+      this.server = new Server();
     }
-  });
+    return this.server;
+  }
+
+  private constructor() {
+    this.app = express();
+    this.initializeMiddlewares();
+  }
+
+  private initializeMiddlewares() {
+    this.app.use(express.json());
+  }
+
+  public listen(controllers: BaseController[]): void {
+    controllers.forEach((controller: BaseController) => {
+      this.app.use('/', controller.createRoutes());
+    });
+    const port = this.getPort();
+    this.app.listen(port, () => {
+      console.log(`App listening on the port ${port}`);
+    });
+  }
+
+  private getPort(): number {
+    const port = ServerConfig.port;
+    if (port === undefined) {
+      exitOnError(new Error('No port defined'));
+    }
+    return port!!;
+  }
+}

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-
-import { DatabaseConfig } from './config';
+import { exitOnError } from '../common/exitOnError';
+import { DatabaseConfig, ServerConfig } from './Config';
 
 export class Postgres {
   private static connection: Sequelize;
@@ -20,6 +20,7 @@ export class Postgres {
       username: DatabaseConfig.username,
       password: DatabaseConfig.password,
       port: DatabaseConfig.port,
+      logging: DatabaseConfig.logging,
       define: {
         timestamps: true,
       },
@@ -30,5 +31,21 @@ export class Postgres {
         max: DatabaseConfig.maxPoolSize,
       },
     });
+    this.initializeDatabase();
+  }
+
+  private static initializeDatabase() {
+    const databaseConnection = Postgres.getConnection();
+    if (ServerConfig.environment === 'local') {
+      databaseConnection
+        .sync({ force: true })
+        .then(() => console.info('Database created'))
+        .catch((err) => exitOnError(err));
+    } else {
+      databaseConnection
+        .authenticate()
+        .then(() => console.info('Database connected'))
+        .catch((err) => exitOnError(err));
+    }
   }
 }

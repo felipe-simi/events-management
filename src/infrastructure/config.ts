@@ -13,6 +13,8 @@ export class DatabaseConfig {
   static readonly password = process.env.DB_PASS as string;
   static readonly port = parseInt(process.env.DB_PORT as string, 10);
   static readonly username = process.env.DB_USER as string;
+  static readonly logging =
+    process.env.DB_LOG === 'true' ? console.info : false;
 
   static readonly acquireTimeout = parseInt(
     process.env.DB_POOL_CONNECTION_TIMEOUT as string,
