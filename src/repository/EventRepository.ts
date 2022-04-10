@@ -26,28 +26,36 @@ EventInstance.init(
       type: DataTypes.UUID,
       primaryKey: true,
       allowNull: false,
+      field: 'id',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'name',
     },
     description: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'description',
     },
     eventDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'event_date',
     },
     isOutside: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      field: 'is_outside',
     },
   },
   {
     sequelize: Postgres.getConnection(),
     paranoid: true,
     timestamps: true,
+    createdAt: 'created_at',
+    deletedAt: 'deleted_at',
+    updatedAt: 'updated_at',
     tableName: 'events',
   }
 );
