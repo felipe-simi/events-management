@@ -3,24 +3,26 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
 } from 'sequelize';
-import { Postgres } from '../infrastructure/Postgres';
-import { Event } from '../model/Event';
+import Postgres from '../infrastructure/Postgres';
+import Event from '../model/Event';
+import { OrganizerDbo } from './OrganizerRepository';
 
-class EventDbo extends Model {
+export class EventDbo extends Model<
+  InferAttributes<EventDbo>,
+  InferCreationAttributes<EventDbo>
+> {
   declare name: string;
   declare description: string;
   declare eventDate: Date;
   declare isOutside: boolean;
   declare id: string;
+  declare organizerId: string;
+  declare organizer?: NonAttribute<OrganizerDbo>;
 }
 
-class EventInstance extends Model<
-  InferAttributes<EventDbo>,
-  InferCreationAttributes<EventDbo>
-> {}
-
-EventInstance.init(
+EventDbo.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -48,6 +50,11 @@ EventInstance.init(
       allowNull: false,
       field: 'is_outside',
     },
+    organizerId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'organizer_id',
+    },
   },
   {
     sequelize: Postgres.getConnection(),
@@ -66,13 +73,14 @@ export class EventRepository {
     return this.instance;
   }
 
-  public async save(event: Event): Promise<void> {
-    return EventInstance.create({
+  public async save(event: Event): Promise<Event> {
+    return EventDbo.create({
       id: event.id,
       name: event.name,
       description: event.description,
       eventDate: event.eventDate,
       isOutside: event.isOutside,
-    }).then();
+      organizerId: event.organizer.id,
+    }).then(() => event);
   }
 }

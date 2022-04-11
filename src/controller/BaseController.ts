@@ -1,5 +1,5 @@
 import express from 'express';
 
-export interface BaseController {
+export default interface BaseController {
   createRoutes(): express.Router;
 }

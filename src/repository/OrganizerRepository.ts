@@ -1,23 +1,26 @@
 import {
+  Association,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
 } from 'sequelize';
-import { Postgres } from '../infrastructure/Postgres';
-import { Organizer } from '../model/Organizer';
+import Postgres from '../infrastructure/Postgres';
+import Organizer from '../model/Organizer';
+import { EventDbo } from './EventRepository';
 
-class OrganizerDbo extends Model {
-  declare name: string;
-  declare id: string;
-}
-
-class OrganizerInstance extends Model<
+export class OrganizerDbo extends Model<
   InferAttributes<OrganizerDbo>,
   InferCreationAttributes<OrganizerDbo>
-> {}
+> {
+  declare name: string;
+  declare id: string;
+  declare static associations: {
+    events: Association<OrganizerDbo, EventDbo>;
+  };
+}
 
-OrganizerInstance.init(
+OrganizerDbo.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -42,6 +45,12 @@ OrganizerInstance.init(
   }
 );
 
+OrganizerDbo.hasMany(EventDbo, {
+  sourceKey: 'id',
+  foreignKey: 'organizerId',
+  as: 'events',
+});
+
 export class OrganizerRepository {
   private static instance = new OrganizerRepository();
   static getInstance(): OrganizerRepository {
@@ -49,9 +58,15 @@ export class OrganizerRepository {
   }
 
   public async save(organizer: Organizer): Promise<void> {
-    return OrganizerInstance.create({
+    return OrganizerDbo.create({
       id: organizer.id,
       name: organizer.name,
     }).then();
+  }
+
+  public async findById(id: string): Promise<Organizer | undefined> {
+    return OrganizerDbo.findByPk(id).then((organizer) =>
+      organizer ? new Organizer(organizer.name, organizer.id) : undefined
+    );
   }
 }

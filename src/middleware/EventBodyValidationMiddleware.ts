@@ -15,6 +15,7 @@ export default class EventBodyValidationMiddleware {
         'isOutside',
         `The information if the event is external is mandatory. 'true' for outdoor events and 'false' for indoors.`
       ).isBoolean(),
+      body('organizerId', 'The organizer id must be a valid UUID.').isUUID(),
     ];
   }
 }

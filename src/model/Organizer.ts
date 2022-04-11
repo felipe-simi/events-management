@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export class Organizer {
+export default class Organizer {
   private _id: string;
   private _name: string;
 

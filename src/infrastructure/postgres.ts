@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { exitOnError } from '../common/exitOnError';
 import { DatabaseConfig, ServerConfig } from './Config';
 
-export class Postgres {
+export default class Postgres {
   private static connection: Sequelize;
 
   static getConnection(): Sequelize {

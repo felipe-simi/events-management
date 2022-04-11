@@ -1,9 +1,10 @@
 import Express from 'express';
 import { ValidationError, validationResult } from 'express-validator/check';
 import OrganizerBodyValidationMiddleware from '../middleware/OrganizerBodyValidationMiddleware';
-import { Organizer } from '../model/Organizer';
-import { OrganizerService } from '../service/OrganizerService';
-import { BaseController } from './BaseController';
+import Organizer from '../model/Organizer';
+import OrganizerDto from '../service/OrganizerDto';
+import OrganizerService from '../service/OrganizerService';
+import BaseController from './BaseController';
 
 export class OrganizerController implements BaseController {
   private path = '/organizers';
@@ -27,8 +28,8 @@ export class OrganizerController implements BaseController {
   };
 
   create = (
-    request: Express.Request<undefined, undefined, OrganizerBody>,
-    response: Express.Response<OrganizerBody | { errors: ValidationError[] }>
+    request: Express.Request<undefined, undefined, OrganizerDto>,
+    response: Express.Response<OrganizerDto | { errors: ValidationError[] }>
   ): void | Express.Response => {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
@@ -45,9 +46,4 @@ export class OrganizerController implements BaseController {
         return response.status(500).json();
       });
   };
-}
-
-interface OrganizerBody {
-  id?: string;
-  name: string;
 }

@@ -1,6 +1,6 @@
 import express from 'express';
 import { exitOnError } from './common/exitOnError';
-import { BaseController } from './controller/BaseController';
+import BaseController from './controller/BaseController';
 import { ServerConfig } from './infrastructure/Config';
 
 export class Server {

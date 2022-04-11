@@ -2,18 +2,20 @@ import EventBodyValidationMiddleware from '../middleware/EventBodyValidationMidd
 import OrganizerBodyValidationMiddleware from '../middleware/OrganizerBodyValidationMiddleware';
 import { EventRepository } from '../repository/EventRepository';
 import { OrganizerRepository } from '../repository/OrganizerRepository';
-import { EventService } from '../service/EventService';
-import { OrganizerService } from '../service/OrganizerService';
+import EventService from '../service/EventService';
+import OrganizerService from '../service/OrganizerService';
 import { EventController } from './EventController';
 import { OrganizerController } from './OrganizerController';
 
+const organizerRepository = OrganizerRepository.getInstance();
+const organizerService = new OrganizerService(organizerRepository);
+const eventRepository = EventRepository.getInstance();
+const eventService = new EventService(eventRepository, organizerService);
+
 export default [
-  new EventController(
-    new EventService(EventRepository.getInstance()),
-    new EventBodyValidationMiddleware()
-  ),
+  new EventController(eventService, new EventBodyValidationMiddleware()),
   new OrganizerController(
-    new OrganizerService(OrganizerRepository.getInstance()),
+    organizerService,
     new OrganizerBodyValidationMiddleware()
   ),
 ];
