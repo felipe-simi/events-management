@@ -15,9 +15,6 @@ export class OrganizerDbo extends Model<
 > {
   declare name: string;
   declare id: string;
-  declare static associations: {
-    events: Association<OrganizerDbo, EventDbo>;
-  };
 }
 
 OrganizerDbo.init(
@@ -45,12 +42,6 @@ OrganizerDbo.init(
   }
 );
 
-OrganizerDbo.hasMany(EventDbo, {
-  sourceKey: 'id',
-  foreignKey: 'organizerId',
-  as: 'events',
-});
-
 export class OrganizerRepository {
   private static instance = new OrganizerRepository();
   static getInstance(): OrganizerRepository {
@@ -58,15 +49,14 @@ export class OrganizerRepository {
   }
 
   public async save(organizer: Organizer): Promise<void> {
-    return OrganizerDbo.create({
+    await OrganizerDbo.create({
       id: organizer.id,
       name: organizer.name,
-    }).then();
+    });
   }
 
   public async findById(id: string): Promise<Organizer | undefined> {
-    return OrganizerDbo.findByPk(id).then((organizer) =>
-      organizer ? new Organizer(organizer.name, organizer.id) : undefined
-    );
+    const organizer = await OrganizerDbo.findByPk(id);
+    return organizer ? new Organizer(organizer.name, organizer.id) : undefined;
   }
 }

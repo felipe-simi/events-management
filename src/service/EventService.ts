@@ -2,6 +2,7 @@ import OrganizerNotFound from '../common/exception/OrganizerNotFound';
 import Event from '../model/Event';
 import { EventRepository } from '../repository/EventRepository';
 import EventDto from './EventDto';
+import FindAllEventParam from './FindAllEventParam';
 import OrganizerService from './OrganizerService';
 
 export default class EventService {
@@ -11,22 +12,23 @@ export default class EventService {
   ) {}
 
   public async save(event: EventDto): Promise<Event> {
-    return this.organizerService
-      .findById(event.organizerId)
-      .then((organizer) => {
-        if (organizer !== undefined) {
-          return this.eventRepository.save(
-            new Event(
-              event.name,
-              event.description,
-              event.eventDate,
-              event.isOutside,
-              organizer
-            )
-          );
-        } else {
-          return Promise.reject(new OrganizerNotFound(event.organizerId));
-        }
-      });
+    const organizer = await this.organizerService.findById(event.organizerId);
+    if (organizer !== undefined) {
+      return this.eventRepository.save(
+        new Event(
+          event.name,
+          event.description,
+          event.eventDate,
+          event.isOutside,
+          organizer
+        )
+      );
+    } else {
+      throw new OrganizerNotFound(event.organizerId);
+    }
+  }
+
+  public async findAll(param: FindAllEventParam): Promise<Event[]> {
+    return this.eventRepository.findAll(param);
   }
 }
