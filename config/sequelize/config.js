@@ -2,8 +2,8 @@ const fs = require('fs');
 
 module.exports = {
   local: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    username: process.env.DB_MIGRATION_USER,
+    password: process.env.DB_MIGRATION_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -11,8 +11,8 @@ module.exports = {
     migrationStorageTableName: 'sequelize_meta',
   },
   production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    username: process.env.DB_MIGRATION_USER,
+    password: process.env.DB_MIGRATION_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
