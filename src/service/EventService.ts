@@ -1,4 +1,4 @@
-import OrganizerNotFound from '../common/exception/OrganizerNotFound';
+import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import Event from '../model/Event';
 import { EventRepository } from '../repository/EventRepository';
 import EventDto from './EventDto';
@@ -24,7 +24,7 @@ export default class EventService {
         )
       );
     } else {
-      throw new OrganizerNotFound(event.organizerId);
+      throw new OrganizerNotFoundError(event.organizerId);
     }
   }
 

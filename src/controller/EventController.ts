@@ -1,17 +1,13 @@
 import Express from 'express';
 import { validationResult } from 'express-validator/check';
-import OrganizerNotFound from '../common/exception/OrganizerNotFound';
+import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
 import EventDto from '../service/EventDto';
 import EventService from '../service/EventService';
 import FindAllEventParam from '../service/FindAllEventParam';
 import BaseController from './BaseController';
-
-type FieldError = {
-  fieldName: string;
-  value: unknown;
-  message: string;
-};
+import FieldError from './error/FieldError';
+import { ResponseError, fromValidationErrors } from './error/ResponseError';
 
 export class EventController implements BaseController {
   private path = '/events';
@@ -41,52 +37,43 @@ export class EventController implements BaseController {
 
   create = async (
     request: Express.Request<undefined, undefined, EventDto>,
-    response: Express.Response<EventDto | { errors: FieldError[] }>
+    response: Express.Response<EventDto | ResponseError>
   ): Promise<void> => {
     const validationErrors = validationResult(request);
     if (!validationErrors.isEmpty()) {
-      const errors: FieldError[] = validationErrors.array().map((error) => ({
-        fieldName: error.param,
-        value: error.value,
-        message: error.msg,
-      }));
-      response.status(422).send({ errors });
+      const responseError = fromValidationErrors(validationErrors);
+      response.status(422).send(responseError);
     } else {
       const event = request.body;
-      this.eventService
-        .save(event)
-        .then((createdEvent) =>
-          response.status(201).json({ id: createdEvent.id, ...request.body })
-        )
-        .catch((error) => {
-          if (error instanceof OrganizerNotFound) {
-            const errors: FieldError[] = [
-              {
-                fieldName: 'organizerId',
-                value: event.organizerId,
-                message: error.message,
-              },
-            ];
-            response.status(422).json({ errors });
-          }
+      try {
+        const createdEvent = await this.eventService.save(event);
+        response.status(201).json({ id: createdEvent.id, ...request.body });
+      } catch (error) {
+        if (error instanceof OrganizerNotFoundError) {
+          const errors: FieldError[] = [
+            {
+              fieldName: 'organizerId',
+              value: event.organizerId,
+              message: error.message,
+            },
+          ];
+          response.status(422).json({ errors });
+        } else {
           console.error(error);
-          return response.status(500).json();
-        });
+          response.status(500).json();
+        }
+      }
     }
   };
 
   findAll = async (
     request: Express.Request<undefined, undefined, EventDto, FindAllEventParam>,
-    response: Express.Response<EventDto[] | { errors: FieldError[] }>
+    response: Express.Response<EventDto[] | ResponseError>
   ): Promise<void> => {
     const validationErrors = validationResult(request);
     if (!validationErrors.isEmpty()) {
-      const errors: FieldError[] = validationErrors.array().map((error) => ({
-        fieldName: error.param,
-        value: error.value,
-        message: error.msg,
-      }));
-      response.status(422).send({ errors });
+      const errors = fromValidationErrors(validationErrors);
+      response.status(422).send(errors);
     } else {
       console.log(request.params);
       console.log(request.query);

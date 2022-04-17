@@ -3,9 +3,12 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  ValidationError,
 } from 'sequelize';
+import EmailAlreadyExistsError from '../common/exception/EmailAlreadyExistsError';
 import Postgres from '../infrastructure/Postgres';
 import Organizer from '../model/Organizer';
+('../common/exception/EmailAlreadyExists');
 
 export class OrganizerDbo extends Model<
   InferAttributes<OrganizerDbo>,
@@ -54,11 +57,17 @@ export class OrganizerRepository {
   }
 
   public async save(organizer: Organizer): Promise<void> {
-    await OrganizerDbo.create({
-      id: organizer.id,
-      name: organizer.name,
-      email: organizer.email,
-    });
+    try {
+      await OrganizerDbo.create({
+        id: organizer.id,
+        name: organizer.name,
+        email: organizer.email,
+      });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        throw new EmailAlreadyExistsError(organizer.email);
+      }
+    }
   }
 
   public async findById(id: string): Promise<Organizer | undefined> {
