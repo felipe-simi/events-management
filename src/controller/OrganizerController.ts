@@ -27,23 +27,25 @@ export class OrganizerController implements BaseController {
     return router;
   };
 
-  create = (
+  create = async (
     request: Express.Request<undefined, undefined, OrganizerDto>,
     response: Express.Response<OrganizerDto | { errors: ValidationError[] }>
-  ): void | Express.Response => {
+  ): Promise<void> => {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
-      return response.status(422).send({ errors: errors.array() });
-    }
-    const organizer = new Organizer(request.body.name);
-    this.organizerService
-      .save(organizer)
-      .then(() =>
-        response.status(201).json({ id: organizer.id, ...request.body })
-      )
-      .catch((error) => {
+      response.status(422).send({ errors: errors.array() });
+    } else {
+      const organizer = new Organizer(request.body.name, request.body.email);
+      try {
+        await this.organizerService
+          .save(organizer)
+          .then(() =>
+            response.status(201).json({ id: organizer.id, ...request.body })
+          );
+      } catch (error) {
         console.error(error);
-        return response.status(500).json();
-      });
+        response.status(500).json();
+      }
+    }
   };
 }

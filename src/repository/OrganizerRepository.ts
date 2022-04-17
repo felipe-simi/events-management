@@ -1,5 +1,4 @@
 import {
-  Association,
   DataTypes,
   InferAttributes,
   InferCreationAttributes,
@@ -7,14 +6,14 @@ import {
 } from 'sequelize';
 import Postgres from '../infrastructure/Postgres';
 import Organizer from '../model/Organizer';
-import { EventDbo } from './EventRepository';
 
 export class OrganizerDbo extends Model<
   InferAttributes<OrganizerDbo>,
   InferCreationAttributes<OrganizerDbo>
 > {
-  declare name: string;
   declare id: string;
+  declare name: string;
+  declare email: string;
 }
 
 OrganizerDbo.init(
@@ -29,6 +28,12 @@ OrganizerDbo.init(
       type: DataTypes.STRING,
       allowNull: false,
       field: 'name',
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: 'email',
+      unique: true,
     },
   },
   {
@@ -52,6 +57,7 @@ export class OrganizerRepository {
     await OrganizerDbo.create({
       id: organizer.id,
       name: organizer.name,
+      email: organizer.email,
     });
   }
 

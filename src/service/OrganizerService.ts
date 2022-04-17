@@ -5,7 +5,8 @@ export default class OrganizerService {
   constructor(private organizerRepository: OrganizerRepository) {}
 
   public async save(organizer: Organizer): Promise<Organizer> {
-    return this.organizerRepository.save(organizer).then(() => organizer);
+    await this.organizerRepository.save(organizer);
+    return organizer;
   }
   public async findById(id: string): Promise<Organizer | undefined> {
     return this.organizerRepository.findById(id);
