@@ -86,15 +86,18 @@ export class EventRepository {
   }
 
   public async save(event: Event): Promise<Event> {
-    await EventDbo.create({
-      id: event.id,
-      name: event.name,
-      description: event.description,
-      eventDate: event.eventDate,
-      isOutside: event.isOutside,
-      organizerId: event.organizer.id,
-    });
+    await EventDbo.create(this.mapToDbo(event));
     return event;
+  }
+
+  public async findById(id: string): Promise<Event | undefined> {
+    const event = await EventDbo.findByPk(id, {
+      include: [{ model: OrganizerDbo, as: 'organizer' }],
+    });
+    if (event) {
+      return this.mapToDomain(event);
+    }
+    return undefined;
   }
 
   public async findAll(param: FindAllEventParam): Promise<Event[]> {
@@ -120,17 +123,7 @@ export class EventRepository {
         include: [{ model: OrganizerDbo, as: 'organizer' }],
       });
     }
-    return result.rows.map(
-      (dbo) =>
-        new Event(
-          dbo.name,
-          dbo.description,
-          dbo.eventDate,
-          dbo.isOutside,
-          new Organizer(dbo.organizer.name, dbo.organizer.id),
-          dbo.id
-        )
-    );
+    return result.rows.map((dbo) => this.mapToDomain(dbo));
   }
 
   private extractWhereClauses(param: FindAllEventParam) {
@@ -149,5 +142,27 @@ export class EventRepository {
       (param.pageNumber ?? this.DEFAULT_PAGE_NUMBER) *
       (param.pageSize ?? this.DEFAULT_PAGE_SIZE)
     );
+  }
+
+  private mapToDomain(dbo: EventDbo): Event {
+    return new Event(
+      dbo.name,
+      dbo.description,
+      dbo.eventDate,
+      dbo.isOutside,
+      new Organizer(dbo.organizer.name, dbo.organizer.email, dbo.organizer.id),
+      dbo.id
+    );
+  }
+
+  private mapToDbo(event: Event) {
+    return {
+      id: event.id,
+      name: event.name,
+      description: event.description,
+      eventDate: event.eventDate,
+      isOutside: event.isOutside,
+      organizerId: event.organizer.id,
+    };
   }
 }

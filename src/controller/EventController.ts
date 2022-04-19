@@ -1,13 +1,14 @@
 import Express from 'express';
-import { validationResult } from 'express-validator/check';
+import { validationResult } from 'express-validator';
 import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
-import EventDto from '../service/EventDto';
+import Event from '../model/Event';
+import { EventRequest, EventResponse } from '../service/EventDto';
 import EventService from '../service/EventService';
 import FindAllEventParam from '../service/FindAllEventParam';
 import BaseController from './BaseController';
 import FieldError from './error/FieldError';
-import { ResponseError, fromValidationErrors } from './error/ResponseError';
+import { fromValidationErrors, ResponseError } from './error/ResponseError';
 
 export class EventController implements BaseController {
   private path = '/events';
@@ -32,12 +33,17 @@ export class EventController implements BaseController {
       this.eventValidation.verifyFindAllEvents(),
       this.findAll
     );
+    router.get(
+      this.path + '/:eventId',
+      this.eventValidation.verifyFindAllEvents(),
+      this.findById
+    );
     return router;
   };
 
   create = async (
-    request: Express.Request<undefined, undefined, EventDto>,
-    response: Express.Response<EventDto | ResponseError>
+    request: Express.Request<undefined, undefined, EventRequest>,
+    response: Express.Response<EventResponse | ResponseError>
   ): Promise<void> => {
     const validationErrors = validationResult(request);
     if (!validationErrors.isEmpty()) {
@@ -47,7 +53,7 @@ export class EventController implements BaseController {
       const event = request.body;
       try {
         const createdEvent = await this.eventService.save(event);
-        response.status(201).json({ id: createdEvent.id, ...request.body });
+        response.status(201).json(this.mapToDto(createdEvent));
       } catch (error) {
         if (error instanceof OrganizerNotFoundError) {
           const errors: FieldError[] = [
@@ -67,26 +73,24 @@ export class EventController implements BaseController {
   };
 
   findAll = async (
-    request: Express.Request<undefined, undefined, EventDto, FindAllEventParam>,
-    response: Express.Response<EventDto[] | ResponseError>
+    request: Express.Request<
+      undefined,
+      undefined,
+      EventRequest,
+      FindAllEventParam
+    >,
+    response: Express.Response<EventResponse[] | ResponseError>
   ): Promise<void> => {
     const validationErrors = validationResult(request);
     if (!validationErrors.isEmpty()) {
       const errors = fromValidationErrors(validationErrors);
       response.status(422).send(errors);
     } else {
-      console.log(request.params);
-      console.log(request.query);
       try {
         const events = await this.eventService.findAll(request.query);
-        const eventsDto: EventDto[] = events.map((event) => ({
-          id: event.id,
-          name: event.name,
-          description: event.description,
-          eventDate: event.eventDate,
-          isOutside: event.isOutside,
-          organizerId: event.organizer.id,
-        }));
+        const eventsDto: EventResponse[] = events.map((event) =>
+          this.mapToDto(event)
+        );
         response.status(200).json(eventsDto);
       } catch (error) {
         console.error(error);
@@ -94,4 +98,49 @@ export class EventController implements BaseController {
       }
     }
   };
+
+  findById = async (
+    request: Express.Request<
+      { eventId: string },
+      undefined,
+      EventRequest,
+      FindAllEventParam
+    >,
+    response: Express.Response<EventResponse | ResponseError>
+  ): Promise<void> => {
+    const validationErrors = validationResult(request);
+    if (!validationErrors.isEmpty()) {
+      const errors = fromValidationErrors(validationErrors);
+      response.status(422).send(errors);
+    } else {
+      const { eventId } = request.params;
+      try {
+        const event = await this.eventService.findById(eventId);
+        if (event) {
+          const eventDto = this.mapToDto(event);
+          response.status(200).json(eventDto);
+        } else {
+          response.status(404).json();
+        }
+      } catch (error) {
+        console.error(error);
+        response.status(500).json();
+      }
+    }
+  };
+
+  private mapToDto(event: Event): EventResponse {
+    return {
+      id: event.id,
+      name: event.name,
+      description: event.description,
+      eventDate: event.eventDate,
+      isOutside: event.isOutside,
+      organizer: {
+        id: event.organizer.id,
+        email: event.organizer.email,
+        name: event.organizer.name,
+      },
+    };
+  }
 }

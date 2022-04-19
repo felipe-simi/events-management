@@ -72,6 +72,8 @@ export class OrganizerRepository {
 
   public async findById(id: string): Promise<Organizer | undefined> {
     const organizer = await OrganizerDbo.findByPk(id);
-    return organizer ? new Organizer(organizer.name, organizer.id) : undefined;
+    return organizer
+      ? new Organizer(organizer.name, organizer.email, organizer.id)
+      : undefined;
   }
 }

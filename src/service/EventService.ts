@@ -1,7 +1,7 @@
 import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import Event from '../model/Event';
 import { EventRepository } from '../repository/EventRepository';
-import EventDto from './EventDto';
+import { EventRequest } from './EventDto';
 import FindAllEventParam from './FindAllEventParam';
 import OrganizerService from './OrganizerService';
 
@@ -11,7 +11,7 @@ export default class EventService {
     private organizerService: OrganizerService
   ) {}
 
-  public async save(event: EventDto): Promise<Event> {
+  public async save(event: EventRequest): Promise<Event> {
     const organizer = await this.organizerService.findById(event.organizerId);
     if (organizer !== undefined) {
       return this.eventRepository.save(
@@ -30,5 +30,9 @@ export default class EventService {
 
   public async findAll(param: FindAllEventParam): Promise<Event[]> {
     return this.eventRepository.findAll(param);
+  }
+
+  public async findById(id: string): Promise<Event | undefined> {
+    return this.eventRepository.findById(id);
   }
 }
