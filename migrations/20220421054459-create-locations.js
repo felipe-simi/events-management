@@ -1,6 +1,6 @@
 'use strict';
 
-const tableName = 'organizers';
+const tableName = 'locations';
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -11,16 +11,39 @@ module.exports = {
         allowNull: false,
         field: 'id',
       },
-      name: {
-        type: Sequelize.STRING,
+      countryAlphaCode: {
+        type: Sequelize.STRING(3),
         allowNull: false,
-        field: 'name',
+        field: 'country_alpha_code',
       },
-      email: {
+      cityName: {
         type: Sequelize.STRING,
         allowNull: false,
-        field: 'email',
-        unique: true,
+        field: 'city_name',
+      },
+      streetAddress: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        field: 'city_name',
+      },
+      postalCode: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        field: 'postal_code',
+      },
+      latitude: {
+        type: Sequelize.INTEGER,
+        validate: {
+          min: -90,
+          max: 90,
+        },
+      },
+      longitude: {
+        type: Sequelize.INTEGER,
+        validate: {
+          min: -180,
+          max: 180,
+        },
       },
       createdAt: {
         type: Sequelize.DATE,

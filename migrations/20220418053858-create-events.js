@@ -1,8 +1,10 @@
 'use strict';
 
+const tableName = 'events';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('events', {
+    await queryInterface.createTable(tableName, {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -58,6 +60,6 @@ module.exports = {
   },
 
   async down(queryInterface, _) {
-    await queryInterface.dropTable('events');
+    await queryInterface.dropTable(tableName);
   },
 };
