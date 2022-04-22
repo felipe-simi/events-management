@@ -33,6 +33,7 @@ module.exports = {
       },
       organizerId: {
         type: Sequelize.UUID,
+        field: 'organizer_id',
         references: {
           model: {
             tableName: 'organizers',
