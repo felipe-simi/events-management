@@ -1,4 +1,4 @@
-import Location from '../model/Location';
+import Location from '../../model/Location';
 
 export interface LocationDto {
   id?: string;

@@ -3,9 +3,10 @@ import { validationResult } from 'express-validator';
 import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
 import Event from '../model/Event';
-import { EventRequest, EventResponse } from '../service/EventDto';
+import { EventRequest, EventResponse } from '../service/dto/EventDto';
 import EventService from '../service/EventService';
 import FindAllEventParam from '../service/FindAllEventParam';
+import { mapLocationModelToDto } from '../service/dto/LocationDto';
 import BaseController from './BaseController';
 import FieldError from './error/FieldError';
 import { fromValidationErrors, ResponseError } from './error/ResponseError';
@@ -130,6 +131,7 @@ export class EventController implements BaseController {
   };
 
   private mapToDto(event: Event): EventResponse {
+    const location = mapLocationModelToDto(event.location);
     return {
       id: event.id,
       name: event.name,
@@ -141,6 +143,7 @@ export class EventController implements BaseController {
         email: event.organizer.email,
         name: event.organizer.name,
       },
+      location,
     };
   }
 }
