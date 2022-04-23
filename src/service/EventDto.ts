@@ -1,3 +1,4 @@
+import { LocationDto } from './LocationDto';
 import OrganizerDto from './OrganizerDto';
 
 export interface EventRequest {
@@ -6,6 +7,7 @@ export interface EventRequest {
   eventDate: Date;
   isOutside: boolean;
   organizerId: string;
+  location: LocationDto;
 }
 
 export interface EventResponse {
@@ -15,4 +17,5 @@ export interface EventResponse {
   eventDate: Date;
   isOutside: boolean;
   organizer: OrganizerDto;
+  location: LocationDto;
 }
