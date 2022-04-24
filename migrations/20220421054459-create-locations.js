@@ -13,18 +13,18 @@ module.exports = {
       },
       countryAlphaCode: {
         type: Sequelize.STRING(3),
-        allowNull: false,
+        allowNull: true,
         field: 'country_alpha_code',
       },
       cityName: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         field: 'city_name',
       },
       streetAddress: {
         type: Sequelize.STRING,
         allowNull: true,
-        field: 'city_name',
+        field: 'street_address',
       },
       postalCode: {
         type: Sequelize.STRING,
@@ -32,14 +32,18 @@ module.exports = {
         field: 'postal_code',
       },
       latitude: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
+        allowNull: true,
+        field: 'latitude_iso',
         validate: {
           min: -90,
           max: 90,
         },
       },
       longitude: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
+        allowNull: true,
+        field: 'longitude_iso',
         validate: {
           min: -180,
           max: 180,
