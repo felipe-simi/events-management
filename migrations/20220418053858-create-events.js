@@ -24,7 +24,7 @@ module.exports = {
       eventDate: {
         type: Sequelize.DATE,
         allowNull: false,
-        field: 'created_date',
+        field: 'event_date',
       },
       isOutside: {
         type: Sequelize.BOOLEAN,
