@@ -5,11 +5,14 @@ import {
   Model,
   NonAttribute,
   Op,
+  Transaction,
 } from 'sequelize';
 import Postgres from '../infrastructure/Postgres';
 import Event from '../model/Event';
+import Location from '../model/Location';
 import Organizer from '../model/Organizer';
 import FindAllEventParam from '../service/FindAllEventParam';
+import { LocationDbo } from './LocationRepository';
 import { OrganizerDbo } from './OrganizerRepository';
 
 export class EventDbo extends Model<
@@ -23,6 +26,8 @@ export class EventDbo extends Model<
   declare id: string;
   declare organizerId: string;
   declare organizer: NonAttribute<OrganizerDbo>;
+  declare locationId: string;
+  declare location: NonAttribute<LocationDbo>;
 }
 
 EventDbo.init(
@@ -58,6 +63,11 @@ EventDbo.init(
       allowNull: false,
       field: 'organizer_id',
     },
+    locationId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'location_id',
+    },
   },
   {
     sequelize: Postgres.getConnection(),
@@ -76,6 +86,12 @@ OrganizerDbo.hasMany(EventDbo, {
 });
 EventDbo.belongsTo(OrganizerDbo, { as: 'organizer' });
 
+LocationDbo.hasMany(EventDbo, {
+  sourceKey: 'id',
+  foreignKey: 'locationId',
+});
+EventDbo.belongsTo(LocationDbo, { as: 'location' });
+
 export class EventRepository {
   DEFAULT_PAGE_SIZE = 10;
   DEFAULT_PAGE_NUMBER = 0;
@@ -85,14 +101,28 @@ export class EventRepository {
     return this.instance;
   }
 
-  public async save(event: Event): Promise<Event> {
-    await EventDbo.create(this.mapToDbo(event));
+  public async save(event: Event, transaction?: Transaction): Promise<Event> {
+    await EventDbo.create(
+      {
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        eventDate: event.eventDate,
+        isOutside: event.isOutside,
+        organizerId: event.organizer.id,
+        locationId: event.location.id,
+      },
+      { transaction }
+    );
     return event;
   }
 
   public async findById(id: string): Promise<Event | undefined> {
     const event = await EventDbo.findByPk(id, {
-      include: [{ model: OrganizerDbo, as: 'organizer' }],
+      include: [
+        { model: OrganizerDbo, as: 'organizer' },
+        { model: LocationDbo, as: 'location' },
+      ],
     });
     if (event) {
       return this.mapToDomain(event);
@@ -151,18 +181,19 @@ export class EventRepository {
       dbo.eventDate,
       dbo.isOutside,
       new Organizer(dbo.organizer.name, dbo.organizer.email, dbo.organizer.id),
+      this.mapLocationDboToModel(dbo.location),
       dbo.id
     );
   }
 
-  private mapToDbo(event: Event) {
-    return {
-      id: event.id,
-      name: event.name,
-      description: event.description,
-      eventDate: event.eventDate,
-      isOutside: event.isOutside,
-      organizerId: event.organizer.id,
-    };
+  private mapLocationDboToModel(locationDbo: LocationDbo) {
+    const location = new Location(locationDbo.id);
+    location.countryAlphaCode = locationDbo.countryAlphaCode;
+    location.cityName = locationDbo.cityName;
+    location.streetAddress = locationDbo.streetAddress;
+    location.postalCode = locationDbo.postalCode;
+    location.latitudeIso = locationDbo.latitudeIso;
+    location.longitudeIso = locationDbo.longitudeIso;
+    return location;
   }
 }

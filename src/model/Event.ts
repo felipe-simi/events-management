@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import Location from './Location';
 import Organizer from './Organizer';
 
 export default class Event {
@@ -8,6 +9,7 @@ export default class Event {
   private _eventDate: Date;
   private _isOutside: boolean;
   private _organizer: Organizer;
+  private _location: Location;
 
   constructor(
     name: string,
@@ -15,6 +17,7 @@ export default class Event {
     eventDate: Date,
     isOutside: boolean,
     organizer: Organizer,
+    location: Location,
     id?: string
   ) {
     if (id) {
@@ -27,6 +30,7 @@ export default class Event {
     this._eventDate = eventDate;
     this._isOutside = isOutside;
     this._organizer = organizer;
+    this._location = location;
   }
 
   get id(): string {
@@ -71,5 +75,13 @@ export default class Event {
 
   public get organizer(): Organizer {
     return this._organizer;
+  }
+
+  set location(location: Location) {
+    this._location = location;
+  }
+
+  public get location(): Location {
+    return this._location;
   }
 }
