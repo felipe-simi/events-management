@@ -1,4 +1,5 @@
 import { body, param, ValidationChain } from 'express-validator';
+import { LocationDto } from '../service/dto/LocationDto';
 
 export default class EventValidationMiddleware {
   verifyCreateEvent(): ValidationChain[] {
@@ -16,6 +17,29 @@ export default class EventValidationMiddleware {
         `The information if the event is external is mandatory. 'true' for outdoor events and 'false' for indoors.`
       ).isBoolean(),
       body('organizerId', 'The organizer id must be a valid UUID.').isUUID(),
+      body('location', 'The location must not be null.').exists(),
+      body(
+        'location',
+        'The location must contain a valid coordinate or address.'
+      )
+        .if(body('location').exists())
+        .custom((location: LocationDto, { req }) => {
+          if (
+            location.latitudeIso !== undefined &&
+            location.longitudeIso !== undefined
+          ) {
+            return true;
+          }
+          if (
+            location.countryAlphaCode &&
+            location.cityName &&
+            location.streetAddress &&
+            location.postalCode
+          ) {
+            return true;
+          }
+          return false;
+        }),
     ];
   }
   verifyFindAllEvents(): ValidationChain[] {
