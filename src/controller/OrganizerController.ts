@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import EmailAlreadyExistsError from '../common/exception/EmailAlreadyExistsError';
 import OrganizerBodyValidationMiddleware from '../middleware/OrganizerBodyValidationMiddleware';
 import Organizer from '../model/Organizer';
-import OrganizerDto from '../service/OrganizerDto';
+import OrganizerDto from '../service/dto/OrganizerDto';
 import OrganizerService from '../service/OrganizerService';
 import BaseController from './BaseController';
 import FieldError from './error/FieldError';
