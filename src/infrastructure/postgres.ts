@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Transaction } from 'sequelize';
 import { exitOnError } from '../common/exitOnError';
-import { DatabaseConfig, ServerConfig } from './Config';
+import { DatabaseConfig } from './Config';
 
 export default class Postgres {
   private static connection: Sequelize;
@@ -10,6 +10,10 @@ export default class Postgres {
       this.createConnection();
     }
     return this.connection;
+  }
+
+  static async createTransaction(): Promise<Transaction> {
+    return this.connection.transaction();
   }
 
   private static createConnection() {
@@ -34,18 +38,19 @@ export default class Postgres {
     this.initializeDatabase();
   }
 
-  private static initializeDatabase() {
+  private static async initializeDatabase() {
     const databaseConnection = Postgres.getConnection();
-    if (ServerConfig.environment === 'local') {
-      databaseConnection
-        .sync({ force: true })
-        .then(() => console.info('Database created'))
-        .catch((err) => exitOnError(err));
-    } else {
-      databaseConnection
-        .authenticate()
-        .then(() => console.info('Database connected'))
-        .catch((err) => exitOnError(err));
+    try {
+      await databaseConnection.authenticate();
+      console.info('Database connected');
+    } catch (error) {
+      if (error instanceof Error) {
+        exitOnError(error);
+      } else {
+        exitOnError(
+          new Error('Unknown error type while connecting to Postgres')
+        );
+      }
     }
   }
 }
