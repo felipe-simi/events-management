@@ -3,7 +3,11 @@ import { validationResult } from 'express-validator';
 import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
 import Event from '../model/Event';
-import { EventRequest, EventResponse } from '../service/dto/EventDto';
+import {
+  EventRequest,
+  EventResponse,
+  mapEventModelToDto,
+} from '../service/dto/EventDto';
 import EventService from '../service/EventService';
 import FindAllEventParam from '../service/dto/FindAllEventParam';
 import { mapLocationModelToDto } from '../service/dto/LocationDto';
@@ -54,7 +58,7 @@ export class EventController implements BaseController {
       const event = request.body;
       try {
         const createdEvent = await this.eventService.save(event);
-        response.status(201).json(this.mapToDto(createdEvent));
+        response.status(201).json(mapEventModelToDto(createdEvent));
       } catch (error) {
         if (error instanceof OrganizerNotFoundError) {
           const errors: FieldError[] = [
@@ -90,7 +94,7 @@ export class EventController implements BaseController {
       try {
         const events = await this.eventService.findAll(request.query);
         const eventsDto: EventResponse[] = events.map((event) =>
-          this.mapToDto(event)
+          mapEventModelToDto(event)
         );
         response.status(200).json(eventsDto);
       } catch (error) {
@@ -116,10 +120,9 @@ export class EventController implements BaseController {
     } else {
       const { eventId } = request.params;
       try {
-        const event = await this.eventService.findById(eventId);
-        if (event) {
-          const eventDto = this.mapToDto(event);
-          response.status(200).json(eventDto);
+        const eventResponse = await this.eventService.findById(eventId);
+        if (eventResponse) {
+          response.status(200).json(eventResponse);
         } else {
           response.status(404).json();
         }
@@ -129,21 +132,4 @@ export class EventController implements BaseController {
       }
     }
   };
-
-  private mapToDto(event: Event): EventResponse {
-    const location = mapLocationModelToDto(event.location);
-    return {
-      id: event.id,
-      name: event.name,
-      description: event.description,
-      eventDate: event.eventDate,
-      isOutside: event.isOutside,
-      organizer: {
-        id: event.organizer.id,
-        email: event.organizer.email,
-        name: event.organizer.name,
-      },
-      location,
-    };
-  }
 }

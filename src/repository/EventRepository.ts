@@ -119,10 +119,7 @@ export class EventRepository {
 
   public async findById(id: string): Promise<Event | undefined> {
     const event = await EventDbo.findByPk(id, {
-      include: [
-        { model: OrganizerDbo, as: 'organizer' },
-        { model: LocationDbo, as: 'location' },
-      ],
+      include: this.getJoinAllClauses(),
     });
     if (event) {
       return this.mapToDomain(event);
@@ -139,7 +136,7 @@ export class EventRepository {
       result = await EventDbo.findAndCountAll({
         limit: limit,
         offset: offset,
-        include: [{ model: OrganizerDbo, as: 'organizer' }],
+        include: this.getJoinAllClauses(),
       });
     } else {
       result = await EventDbo.findAndCountAll({
@@ -150,10 +147,17 @@ export class EventRepository {
             [Op.and]: dateClauses,
           },
         },
-        include: [{ model: OrganizerDbo, as: 'organizer' }],
+        include: this.getJoinAllClauses(),
       });
     }
     return result.rows.map((dbo) => this.mapToDomain(dbo));
+  }
+
+  private getJoinAllClauses() {
+    return [
+      { model: OrganizerDbo, as: 'organizer' },
+      { model: LocationDbo, as: 'location' },
+    ];
   }
 
   private extractWhereClauses(param: FindAllEventParam) {
