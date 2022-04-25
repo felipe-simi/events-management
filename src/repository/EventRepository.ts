@@ -11,7 +11,7 @@ import Postgres from '../infrastructure/Postgres';
 import Event from '../model/Event';
 import Location from '../model/Location';
 import Organizer from '../model/Organizer';
-import FindAllEventParam from '../service/FindAllEventParam';
+import FindAllEventParam from '../service/dto/FindAllEventParam';
 import { LocationDbo } from './LocationRepository';
 import { OrganizerDbo } from './OrganizerRepository';
 

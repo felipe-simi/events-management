@@ -5,7 +5,7 @@ import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
 import Event from '../model/Event';
 import { EventRequest, EventResponse } from '../service/dto/EventDto';
 import EventService from '../service/EventService';
-import FindAllEventParam from '../service/FindAllEventParam';
+import FindAllEventParam from '../service/dto/FindAllEventParam';
 import { mapLocationModelToDto } from '../service/dto/LocationDto';
 import BaseController from './BaseController';
 import FieldError from './error/FieldError';

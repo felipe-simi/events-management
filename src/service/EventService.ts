@@ -4,7 +4,7 @@ import Event from '../model/Event';
 import { EventRepository } from '../repository/EventRepository';
 import { EventRequest } from './dto/EventDto';
 import { mapLocationDtoToModel } from './dto/LocationDto';
-import FindAllEventParam from './FindAllEventParam';
+import FindAllEventParam from './dto/FindAllEventParam';
 import LocationService from './LocationService';
 import OrganizerService from './OrganizerService';
 
