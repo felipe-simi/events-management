@@ -3,8 +3,10 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  Transaction,
 } from 'sequelize';
 import Postgres from '../infrastructure/Postgres';
+import Location from '../model/Location';
 ('../common/exception/EmailAlreadyExists');
 
 export class LocationDbo extends Model<
@@ -49,12 +51,12 @@ LocationDbo.init(
       field: 'postal_code',
     },
     latitudeIso: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.FLOAT,
       allowNull: true,
       field: 'latitude_iso',
     },
     longitudeIso: {
-      type: DataTypes.STRING,
+      type: DataTypes.FLOAT,
       allowNull: true,
       field: 'longitude_iso',
     },
@@ -74,5 +76,24 @@ export class LocationRepository {
   private static instance = new LocationRepository();
   static getInstance(): LocationRepository {
     return this.instance;
+  }
+
+  public async save(
+    location: Location,
+    transaction?: Transaction
+  ): Promise<Location> {
+    await LocationDbo.create(
+      {
+        id: location.id,
+        countryAlphaCode: location.countryAlphaCode,
+        cityName: location.cityName,
+        postalCode: location.postalCode,
+        streetAddress: location.streetAddress,
+        latitudeIso: location.latitudeIso,
+        longitudeIso: location.longitudeIso,
+      },
+      { transaction }
+    );
+    return location;
   }
 }
