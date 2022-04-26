@@ -7,12 +7,11 @@ import {
   EventResponse,
   mapEventModelToDto,
 } from './dto/EventDto';
-import { mapLocationDtoToModel } from './dto/LocationDto';
 import FindAllEventParam from './dto/FindAllEventParam';
+import { mapLocationDtoToModel } from './dto/LocationDto';
 import LocationService from './LocationService';
 import OrganizerService from './OrganizerService';
 import WeatherService from './WeatherService';
-import { WeatherDetailDto } from './dto/WeatherDetailDto';
 
 export default class EventService {
   constructor(

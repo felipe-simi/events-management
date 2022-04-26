@@ -2,15 +2,13 @@ import Express from 'express';
 import { validationResult } from 'express-validator';
 import OrganizerNotFoundError from '../common/exception/OrganizerNotFoundError';
 import EventValidationMiddleware from '../middleware/EventValidationMiddleware';
-import Event from '../model/Event';
 import {
   EventRequest,
   EventResponse,
   mapEventModelToDto,
 } from '../service/dto/EventDto';
-import EventService from '../service/EventService';
 import FindAllEventParam from '../service/dto/FindAllEventParam';
-import { mapLocationModelToDto } from '../service/dto/LocationDto';
+import EventService from '../service/EventService';
 import BaseController from './BaseController';
 import FieldError from './error/FieldError';
 import { fromValidationErrors, ResponseError } from './error/ResponseError';
