@@ -84,7 +84,7 @@ export default class EventService {
       eventDate.getDate()
     );
     const current = Date.now();
-
-    return Math.floor((eventDateUtc - current) / MS_PER_DAY) <= MS_PER_WEEK;
+    const differecenMs = eventDateUtc - current;
+    return differecenMs > 0 && differecenMs <= MS_PER_WEEK;
   }
 }

@@ -14,8 +14,9 @@ export default class WeatherService {
       const response = await this.weatherClient.get<WeatherResponse>(
         `data/2.5/onecall?exclude=hourly,minutely,current&units=metric&lat=${location.latitudeIso}&lon=${location.longitudeIso}&appid=${this.appKey}`
       );
+      const MS = 1000;
       const eventWeather = response.data.daily.find((weather) =>
-        this.isEqualDate(new Date(weather.dt), event.eventDate)
+        this.isEqualDate(new Date(weather.dt * MS), event.eventDate)
       );
       if (eventWeather) {
         return {
