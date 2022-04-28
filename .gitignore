@@ -46,3 +46,6 @@ data/
 
 # Env file
 *.env
+
+# Code coverage report
+coverage/
