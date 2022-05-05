@@ -2,12 +2,19 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "commonjs",
-    "lib": ["esnext"],
-    "strict": true,
-    "rootDir": "src",
-    "outDir": "dist",
+    "moduleResolution": "node",
     "sourceMap": true,
-    "esModuleInterop": true
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "removeComments": true,
+    "noEmitOnError": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/*.spec.*"]

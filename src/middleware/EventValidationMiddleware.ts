@@ -18,16 +18,10 @@ export default class EventValidationMiddleware {
       ).isBoolean(),
       body('organizerId', 'The organizer id must be a valid UUID.').isUUID(),
       body('location', 'The location must not be null.').exists(),
-      body(
-        'location',
-        'The location must contain a valid coordinate or address.'
-      )
+      body('location', 'The location must contain a valid coordinate or address.')
         .if(body('location').exists())
-        .custom((location: LocationDto, { req }) => {
-          if (
-            location.latitudeIso !== undefined &&
-            location.longitudeIso !== undefined
-          ) {
+        .custom((location: LocationDto) => {
+          if (location.latitudeIso !== undefined && location.longitudeIso !== undefined) {
             return true;
           }
           if (
@@ -39,27 +33,23 @@ export default class EventValidationMiddleware {
             return true;
           }
           return false;
-        }),
+        })
     ];
   }
   verifyFindAllEvents(): ValidationChain[] {
     return [
       param('from', 'The date format must be YYYY/MM/DD.').optional().isDate({
-        strictMode: true,
+        strictMode: true
       }),
       param('to', 'The date format must be YYYY/MM/DD.').optional().isDate({
-        strictMode: true,
+        strictMode: true
       }),
-      param('pageNumber', 'The page number must be a positive value.')
-        .optional()
-        .isInt({
-          min: 0,
-        }),
-      param('pageSize', 'The page size must be a positive value.')
-        .optional()
-        .isInt({
-          min: 0,
-        }),
+      param('pageNumber', 'The page number must be a positive value.').optional().isInt({
+        min: 0
+      }),
+      param('pageSize', 'The page size must be a positive value.').optional().isInt({
+        min: 0
+      })
     ];
   }
 }
